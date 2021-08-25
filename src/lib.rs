@@ -30,7 +30,7 @@ mod tests {
         let mut cls_out = ClassificationOutput::<u16, f32>::new(30u16);
         let images = vec!["abc.jpg", "cde.jpg", "efg.jpg"];
         for (index, image) in images.iter().enumerate() {
-            cls_out.add(*image, vec![index as f32; 30]);
+            cls_out.add(*image, vec![index as f32; 30]).unwrap();
         }
         assert_eq!(cls_out.num_images(), 3usize);
     }
