@@ -16,9 +16,9 @@ pub struct ClassificationOutput<T1: num_traits::PrimInt + num_traits::Unsigned +
 }
 
 impl<T1: num_traits::PrimInt + num_traits::Unsigned + num_traits::FromPrimitive, T2: num_traits::Float + fast_float::FastFloat> ClassificationOutput<T1, T2> {
-    /// Creates a new empty instance of [ClassificaionOutput]
+    /// Creates a new empty instance of [`Self`]
     ///
-    /// Items need to be subsequently added to it using [`self::add()`]
+    /// Items need to be subsequently added to it using [`Self::add()`]
     ///
     /// # Examples
     ///
@@ -44,10 +44,10 @@ impl<T1: num_traits::PrimInt + num_traits::Unsigned + num_traits::FromPrimitive,
         }
     }
 
-    /// Adds a new entry to a [ClassificationOutput] instance.
+    /// Adds a new entry to a [`Self`] instance.
     ///
     /// This returns an [`io::Error`] instance if the new entry has different number of classes
-    /// than that of the [ClassificationOutput] instance.
+    /// than that of the [`Self`] instance.
     ///
     /// # Examples
     ///
@@ -88,7 +88,7 @@ impl<T1: num_traits::PrimInt + num_traits::Unsigned + num_traits::FromPrimitive,
         self.num_classes
     }
 
-    /// Returns the number of images in a [ClassificationOutput] instance.
+    /// Returns the number of images in a [`Self`] instance.
     ///
     /// # Examples
     ///
@@ -118,7 +118,7 @@ impl<T1: num_traits::PrimInt + num_traits::Unsigned + num_traits::FromPrimitive,
     }
 
 
-    /// Returns true if `image_name` is present in a [ClassificationOutput] instance. False otherwise.
+    /// Returns true if `image_name` is present in a [`Self`] instance. False otherwise.
     ///
     /// # Examples
     ///
@@ -136,7 +136,7 @@ impl<T1: num_traits::PrimInt + num_traits::Unsigned + num_traits::FromPrimitive,
         self.data.contains_key(image_name)
     }
 
-    /// Returns a sorted vector of image names in a [ClassificationOutput] instance.
+    /// Returns a sorted vector of image names in a [`Self`] instance.
     ///
     /// The returned vector contains `&str` slices to the `String` stored in the instance.
     ///
@@ -164,7 +164,7 @@ impl<T1: num_traits::PrimInt + num_traits::Unsigned + num_traits::FromPrimitive,
     }
 
 
-    /// Returns true if a [ClassificationOutput] instance is empty. False otherwise.
+    /// Returns true if a [`Self`] instance is empty. False otherwise.
     ///
     /// # Examples
     ///
