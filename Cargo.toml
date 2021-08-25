@@ -12,6 +12,7 @@ keywords = ["computer vision", "evaluation"]
 
 [dependencies]
 num-traits = "0.2.14"
+fast-float = "0.2.0"
 
 [lib]
 name = "bagheera"
