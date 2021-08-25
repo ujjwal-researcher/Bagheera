@@ -19,3 +19,4 @@ name = "bagheera"
 path = "src/lib.rs"
 crate-type = ["lib"]
 doc = true
+doctest = true
