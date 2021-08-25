@@ -1,4 +1,4 @@
-mod classification;
+pub mod classification;
 
 #[cfg(test)]
 mod tests {
