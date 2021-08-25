@@ -1,3 +1,5 @@
+mod classification;
+
 #[cfg(test)]
 mod tests {
     #[test]
