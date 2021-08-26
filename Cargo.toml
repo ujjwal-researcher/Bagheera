@@ -14,6 +14,9 @@ keywords = ["computer vision", "evaluation"]
 num-traits = "0.2.14"
 fast-float = "0.2.0"
 
+[dev-dependencies]
+float-cmp = "0.9.0"
+
 [lib]
 name = "bagheera"
 path = "src/lib.rs"
