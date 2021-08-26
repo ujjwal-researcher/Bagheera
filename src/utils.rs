@@ -3,6 +3,7 @@
 use std::cmp::Ordering;
 use std::collections::BinaryHeap;
 use std::io;
+use std::io::Error;
 
 use crate::errors;
 
@@ -113,65 +114,72 @@ impl<T: num_traits::Float> Ord for NoNaN<T> {
         self.partial_cmp(other).unwrap()
     }
 }
-//
-// pub trait TopK<T> {
-//     fn top_k(&self, k: usize) -> Result<Vec<usize>, io::Error> {
-//         if k > self.len() {
-//             return Err(errors::topk_incorrect_k(k, self.len()));
-//         }
-//         let bheap = Self::prepare_indexed_heap(&self);
-//         let mut topk_indices = Vec::<usize>::with_capacity(k);
-//         for _ in 0..k {
-//             topk_indices.push(
-//                 (*bheap).pop().unwrap().index()
-//             )
-//         }
-//         Ok(topk_indices)
-//     }
-//
-//     fn prepare_indexed_heap(&self) -> &mut BinaryHeap<IndexedTuple<T>> where T : Ord;
-// }
-//
-//
-// // impl<T> TopK<T> for Vec<T> where T: num_traits::Unsigned + Copy {
-// //     fn prepare_indexed_heap(&self) -> &mut BinaryHeap<IndexedTuple<T>> {
-// //         let mut bheap = BinaryHeap::<IndexedTuple<T>>::with_capacity(self.len());
-// //         for (index, value) in self.iter().enumerate() {
-// //             bheap.push(
-// //                 IndexedTuple::new(index, *value)
-// //             );
-// //         }
-// //         &mut bheap
-// //     }
-// // }
-//
-// impl<T> TopK<T> for Vec<T> where T : num_traits::Float + Copy{
-//     fn prepare_indexed_heap(&self) -> &mut BinaryHeap<IndexedTuple<T>> where  {
-//         let mut bheap = BinaryHeap::<IndexedTuple<NoNaN<T>>>::with_capacity(self.len());
-//         for (index, value) in self.iter().enumerate() {
-//             bheap.push(
-//                 IndexedTuple::new(index, NoNaN::new(*value).unwrap())
-//             );
-//         }
-//         &mut bheap
-//     }
-// }
 
-pub trait TopK<T> {
-    fn top_k(&self, k: usize) -> Result<Vec<usize>, io::Error> {
-        if k > self.len() {
-            return Err(errors::topk_incorrect_k(k, self.len()));
-        }
-        let bheap = Self::prepare_indexed_heap(&self);
-        let mut topk_indices = Vec::<usize>::with_capacity(k);
-        for _ in 0..k {
-            topk_indices.push(
-                (*bheap).pop().unwrap().index()
-            )
-        }
-        Ok(topk_indices)
-    }
-
-    fn prepare_indexed_heap(&self) -> &mut BinaryHeap<IndexedTuple<T>> where T : Ord;
+pub trait TopK {
+    fn top_k(&self, k: usize) -> Result<Vec<usize>, io::Error>;
 }
 
+
+
+
+macro_rules! impl_topk_non_float {
+    ($($ty:ty),*) =>{
+        $(
+        impl TopK for Vec<$ty>{
+            fn top_k(&self, k: usize) -> Result<Vec<usize>, Error> {
+                if k > self.len(){
+                    return Err(errors::topk_incorrect_k(k, self.len()));
+                }
+
+                let mut bheap = BinaryHeap::<IndexedTuple<$ty>>::with_capacity(self.len());
+                for (index, value) in self.iter().enumerate(){
+                bheap.push(
+                    IndexedTuple::new(index, *value)
+                );
+                }
+
+                let mut topk_indices = Vec::<usize>::with_capacity(k);
+                for _ in 0usize..k{
+                    topk_indices.push(
+                        bheap.pop().unwrap().index()
+                    );
+                }
+                Ok(topk_indices)
+            }
+        }
+        )*
+    }
+}
+
+
+macro_rules! impl_topk_float {
+    ($($ty:ty),*) =>{
+        $(
+        impl TopK for Vec<$ty>{
+            fn top_k(&self, k: usize) -> Result<Vec<usize>, Error> {
+                if k > self.len(){
+                    return Err(errors::topk_incorrect_k(k, self.len()));
+                }
+
+                let mut bheap = BinaryHeap::<IndexedTuple<NoNaN<$ty>>>::with_capacity(self.len());
+                for (index, value) in self.iter().enumerate(){
+                bheap.push(
+                    IndexedTuple::new(index, NoNaN::new(*value).unwrap())
+                );
+                }
+
+                let mut topk_indices = Vec::<usize>::with_capacity(k);
+                for _ in 0usize..k{
+                    topk_indices.push(
+                        bheap.pop().unwrap().index()
+                    );
+                }
+                Ok(topk_indices)
+            }
+        }
+        )*
+    }
+}
+
+impl_topk_float!(f32, f64);
+impl_topk_non_float!(u8, i8, u16, i16, u32, i32, u64, i64,  u128, i128, usize);
