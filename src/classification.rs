@@ -195,18 +195,27 @@ impl<T1: num_traits::PrimInt + num_traits::Unsigned + num_traits::FromPrimitive,
     /// # Examples
     ///
     /// ```rust
-    /// use bagheera::classification::ClassificationOutput;
-    /// use std::collections::HashSet;
-    /// use float_cmp::approx_eq;
-    /// let mut cls_out = ClassificationOutput::<u8, f32>::new(30u8);
-    /// let mut images = vec!["india.jpg", "germany.png", "iran.jpg", "canada.png", "japan.jpg"];
-    /// let vals = vec![1f32,2f32,3f32,4f32,5f32];
-    /// for (img, val) in images.iter().zip(vals.iter()){
-    ///     let v = vec![*val; 30];
-    ///     cls_out.add(img, v);
-    /// }
+    ///     use bagheera::classification::ClassificationOutput;
+    ///     use rand;
+    ///     use rand::Rng;
+    ///     use float_cmp::approx_eq;
+    ///    let mut cls_out = ClassificationOutput::<u32,f32>::new(1000u32);
+    ///     let rand_iter = rand::thread_rng().gen_range(0usize..500usize);
+    ///     println!("{}",rand_iter);
+    ///     let mut test_image = String::new();
+    ///     let mut test_vec = Vec::<f32>::new();
+    ///    for i in 0usize..500usize{
+    ///         let rand_name : String = (0..50).map(|_| rand::random::<u8>() as char).collect();
+    ///         let rand_vec = vec![rand::random::<f32>() ; 1000usize];
+    ///         if i == rand_iter{
+    ///             test_vec = rand_vec.clone();
+    ///             test_image = rand_name.clone();
+    ///             println!("Test image : {}",test_image);
+    ///         }
+    ///         cls_out.add(&rand_name, rand_vec);
+    ///     }
     ///
-    /// for (lhs, rhs) in (*(cls_out.confidence_for_image("iran.jpg").unwrap())).iter().zip(vec![3f32;30].iter()){
+    /// for (lhs, rhs) in (*(cls_out.confidence_for_image(&test_image).unwrap())).iter().zip(test_vec.iter()){
     ///     approx_eq!(f32, *lhs, *rhs, ulps=5);
     /// }
     /// ```
@@ -218,7 +227,38 @@ impl<T1: num_traits::PrimInt + num_traits::Unsigned + num_traits::FromPrimitive,
         }
     }
 
-
+    /// Returns indices for the Top-k entries of the confidence vector for an image in
+    /// a [`Self`] instance.
+    ///
+    /// If `imagename` is not in the [`Self`] instance, an [io::Error] instance is returned
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    ///     use bagheera::classification::ClassificationOutput;
+    ///     use rand;
+    ///     use rand::Rng;
+    ///     use float_cmp::approx_eq;
+    ///    let mut cls_out = ClassificationOutput::<u32,f32>::new(1000u32);
+    ///     let rand_iter = rand::thread_rng().gen_range(0usize..500usize);
+    ///     let mut test_image = String::new();
+    ///     let mut test_vec = Vec::<f32>::new();
+    ///    for i in 0usize..500usize{
+    ///         let rand_name : String = (0..50).map(|_| rand::random::<u8>() as char).collect();
+    ///         let mut rand_vec = Vec::<f32>::new();
+    ///         if i == rand_iter{
+    ///             test_image = rand_name.clone();
+    ///             rand_vec = (0..1000).map(|x| x as f32).collect();
+    ///         }
+    ///         else {
+    ///             rand_vec =  vec![rand::random::<f32>() ; 1000usize];
+    ///         }
+    ///         cls_out.add(&rand_name, rand_vec);
+    ///     }
+    ///
+    ///     let topk_ind = cls_out.topk_for_image(&test_image,3usize).unwrap();
+    ///     assert_eq!(topk_ind, vec![999usize, 998usize, 997usize])
+    ///```
     pub fn topk_for_image(&self, imagename: &str, k: usize) -> Result<Vec<usize>, io::Error> where Vec<T2>: utils::TopK {
         if !self.image_is_present(imagename) {
             return Err(errors::image_not_present_error(imagename));
