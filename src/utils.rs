@@ -115,7 +115,9 @@ impl<T: num_traits::Float> Ord for NoNaN<T> {
     }
 }
 
+/// Trait for calculating Top-K indices in a container.
 pub trait TopK {
+    /// Returns the Top-K indices in  a container.
     fn top_k(&self, k: usize) -> Result<Vec<usize>, io::Error>;
 }
 

@@ -48,21 +48,32 @@ mod tests {
         let images = vec!["india.jpg", "germany.png", "iran.jpg", "canada.png", "japan.jpg"];
         for img in images {
             let v = vec![1f32; 30];
-            cls_out.add(img, v);
+            cls_out.add(img, v).unwrap();
         }
         assert_eq!(cls_out.image_is_present("australia.jpg"), false);
     }
 
     #[test]
     fn classification_test_list_images() {
+        use std::collections::HashSet;
         let mut cls_out = ClassificationOutput::<u8, f32>::new(30u8);
         let mut images = vec!["india.jpg", "germany.png", "iran.jpg", "canada.png", "japan.jpg"];
         images.sort();
         for img in &images {
             let v = vec![1f32; 30];
-            cls_out.add(*img, v);
+            cls_out.add(img, v).unwrap();
         }
-        assert_eq!(cls_out.list_images(), images);
+        let list_of_images = cls_out.list_images();
+        let mut lhs = HashSet::<&str>::with_capacity(list_of_images.len());
+        for item in list_of_images {
+            lhs.insert(item);
+        }
+
+        let mut rhs = HashSet::<&str>::with_capacity(images.len());
+        for item in images {
+            rhs.insert(item);
+        }
+        assert_eq!(lhs, rhs);
     }
 
     #[test]
