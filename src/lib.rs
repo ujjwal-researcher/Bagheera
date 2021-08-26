@@ -4,6 +4,10 @@ pub mod utils;
 
 #[cfg(test)]
 mod tests {
+    use float_cmp::approx_eq;
+    use rand;
+    use rand::Rng;
+
     use crate::classification::ClassificationOutput;
 
     #[test]
@@ -80,5 +84,47 @@ mod tests {
     fn classification_test_classification_output_is_empty() {
         let cls_out = ClassificationOutput::<u8, f64>::new(20u8);
         assert_eq!(cls_out.is_empty(), true);
+    }
+
+    #[test]
+    fn classification_test_confidence_for_image() {
+        let mut cls_out = ClassificationOutput::<u32, f32>::new(1000u32);
+        let rand_iter = rand::thread_rng().gen_range(0usize..500usize);
+        let mut test_image = String::new();
+        let mut test_vec = Vec::<f32>::new();
+        for i in 0usize..500usize {
+            let rand_name: String = (0..50).map(|_| rand::random::<u8>() as char).collect();
+            let rand_vec = vec![rand::random::<f32>(); 1000usize];
+            if i == rand_iter {
+                test_vec = rand_vec.clone();
+                test_image = rand_name.clone();
+            }
+            cls_out.add(&rand_name, rand_vec).unwrap();
+        }
+
+        for (lhs, rhs) in (*(cls_out.confidence_for_image(&test_image).unwrap())).iter().zip(test_vec.iter()) {
+            approx_eq!(f32, *lhs, *rhs, ulps=5);
+        }
+    }
+
+    #[test]
+    fn classification_test_topk_for_image() {
+        let mut cls_out = ClassificationOutput::<u32, f32>::new(1000u32);
+        let rand_iter = rand::thread_rng().gen_range(0usize..500usize);
+        let mut test_image = String::new();
+        for i in 0usize..500usize {
+            let rand_name: String = (0..50).map(|_| rand::random::<u8>() as char).collect();
+            let rand_vec: Vec<f32>;
+            if i == rand_iter {
+                test_image = rand_name.clone();
+                rand_vec = (0..1000).map(|x| x as f32).collect();
+            } else {
+                rand_vec = vec![rand::random::<f32>(); 1000usize];
+            }
+            cls_out.add(&rand_name, rand_vec).unwrap();
+        }
+
+        let topk_ind = cls_out.topk_for_image(&test_image, 3usize).unwrap();
+        assert_eq!(topk_ind, vec![999usize, 998usize, 997usize])
     }
 }
