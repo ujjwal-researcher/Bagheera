@@ -31,3 +31,17 @@ pub fn image_not_present_error(image_name: &str) -> io::Error {
                    format!("The image {} was not found.", image_name),
     )
 }
+
+/// Returns an `io::Error` instance with a custom string when K during Top-K analysis of a vector
+/// is set higher than the length of the vector itself.
+///
+/// # Examples
+///
+/// ```rust
+/// ```
+
+pub fn topk_incorrect_k(k: usize, v_length: usize) -> io::Error {
+    io::Error::new(io::ErrorKind::InvalidInput, format!("In Top-K analysis of a vector v, K <= v.len().\
+    Here K = {} and v.len() = {}.", k, v_length),
+    )
+}
