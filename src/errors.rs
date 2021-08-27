@@ -39,3 +39,8 @@ pub fn topk_incorrect_k(k: usize, v_length: usize) -> io::Error {
     Here K = {} and v.len() = {}.", k, v_length),
     )
 }
+
+/// Returns an `io::Error` instance with a custom string for a file not found.
+pub fn file_not_found(filename: &str) -> io::Error {
+    io::Error::new(io::ErrorKind::NotFound, format!("The file {} was not found.", filename))
+}

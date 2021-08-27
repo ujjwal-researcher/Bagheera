@@ -82,7 +82,7 @@ impl<T1: num_traits::PrimInt + num_traits::Unsigned + num_traits::FromPrimitive,
             numlines += 1;
         }
         let mut data_hmap = HashMap::<String, Vec<T2>>::with_capacity(numlines);
-        bufread.seek(SeekFrom::Start(0u64));
+        bufread.seek(SeekFrom::Start(0u64)).unwrap();
         for (line_num, line) in bufread.lines().enumerate() {
             let line = line.unwrap();
             let line_trimmed = line.trim();
