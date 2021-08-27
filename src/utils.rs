@@ -7,6 +7,8 @@ use std::io;
 use std::io::Error;
 use std::path;
 
+use plain_path::PlainPathExt;
+
 use crate::errors;
 
 ///Generic struct to hold a value together with its index.
@@ -192,7 +194,7 @@ impl_topk_non_float!(u8, i8, u16, i16, u32, i32, u64, i64,  u128, i128, usize);
 /// Returns a [fs::File] instance if a file exists. Otherwise
 /// returns an [io::Error] instance.
 pub fn open_file(filename: &str) -> Result<fs::File, io::Error> {
-    let pth = path::Path::new(filename);
+    let pth = path::Path::new(filename).plain().unwrap();
     if pth.exists() {
         Ok(fs::File::open(pth).unwrap())
     } else {

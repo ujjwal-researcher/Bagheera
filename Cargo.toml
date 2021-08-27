@@ -14,6 +14,9 @@ keywords = ["computer vision", "evaluation"]
 num-traits = "0.2.14"
 fast-float = "0.2.0"
 log = "0.4.14"
+plain_path = "0.1.0"
+fern = { version = "0.6.0", optional = true }
+chrono = { version = "0.4.19", optional = true }
 
 [dev-dependencies]
 float-cmp = "0.9.0"
@@ -22,6 +25,14 @@ rand = "0.8.4"
 [lib]
 name = "bagheera"
 path = "src/lib.rs"
-crate-type = ["lib"]
+crate-type = ["rlib", "dylib"]
 doc = true
 doctest = true
+
+[[bin]]
+name = "bagheera"
+path = "src/main.rs"
+required-features = ["build-binary"]
+
+[features]
+build-binary = ["fern", "chrono"]

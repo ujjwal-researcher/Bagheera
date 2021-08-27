@@ -87,6 +87,7 @@ impl<T1: num_traits::PrimInt + num_traits::Unsigned + num_traits::FromPrimitive,
         log::debug!("There are a total of {} lines in {}.", numlines, csv_filename);
         let mut data_hmap = HashMap::<String, Vec<T2>>::with_capacity(numlines);
         bufread.seek(SeekFrom::Start(0u64)).unwrap();
+        log::debug!("Reading and parsing lines from the file.");
         for (line_num, line) in bufread.lines().enumerate() {
             let line = line.unwrap();
             let line_trimmed = line.trim();
@@ -102,12 +103,11 @@ impl<T1: num_traits::PrimInt + num_traits::Unsigned + num_traits::FromPrimitive,
                         token.to_string(),
                         Vec::<T2>::new(),
                     );
-                    break;
+                    continue;
                 }
 
                 data_hmap.get_mut(&imagename).unwrap().push(fast_float::parse::<T2, _>(token).unwrap());
             }
-
             if T1::from_usize(data_hmap[&imagename].len()).unwrap() != num_classes {
                 return Err(
                     io::Error::new(
@@ -117,6 +117,7 @@ impl<T1: num_traits::PrimInt + num_traits::Unsigned + num_traits::FromPrimitive,
                 );
             }
         }
+        log::debug!("Finished parsing the file.");
         Ok(ClassificationOutput {
             num_classes,
             data: data_hmap,
