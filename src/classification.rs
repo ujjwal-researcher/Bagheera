@@ -219,11 +219,7 @@ impl<T1: num_traits::PrimInt + num_traits::Unsigned + num_traits::FromPrimitive,
     /// assert_eq!(lhs, rhs);
     /// ```
     pub fn list_images(&self) -> Vec<&str> {
-        let mut images = Vec::<&str>::with_capacity(self.num_images());
-        for (img_name, _) in &self.data {
-            images.push(img_name);
-        }
-        images
+        self.data.iter().map(|it| it.0.as_str()).collect()
     }
 
 
