@@ -2,8 +2,10 @@
 
 use std::cmp::Ordering;
 use std::collections::BinaryHeap;
+use std::fs;
 use std::io;
 use std::io::Error;
+use std::path;
 
 use crate::errors;
 
@@ -185,3 +187,15 @@ macro_rules! impl_topk_float {
 
 impl_topk_float!(f32, f64);
 impl_topk_non_float!(u8, i8, u16, i16, u32, i32, u64, i64,  u128, i128, usize);
+
+
+/// Returns a [fs::File] instance if a file exists. Otherwise
+/// returns an [io::Error] instance.
+pub fn open_file(filename: &str) -> Result<fs::File, io::Error> {
+    let pth = path::Path::new(filename);
+    if pth.exists() {
+        Ok(fs::File::open(pth).unwrap())
+    } else {
+        Err(errors::file_not_found(filename))
+    }
+}
