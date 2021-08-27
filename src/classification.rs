@@ -358,7 +358,7 @@ impl<T1: num_traits::PrimInt + num_traits::Unsigned + num_traits::FromPrimitive>
     /// ```rust
     /// use bagheera::classification::ClassificationDataset;
     ///  let cls_db = ClassificationDataset::<u128>::new(2000u128, true);
-    ///  assert_eq!(cls_db.num_classes(), 2000u32);
+    ///  assert_eq!(cls_db.num_classes(), 2000u128);
     /// ```
     pub fn num_classes(&self) -> T1 {
         self.num_classes
