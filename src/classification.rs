@@ -375,6 +375,29 @@ impl<T1: num_traits::PrimInt + num_traits::Unsigned + num_traits::FromPrimitive>
     pub fn list_images(&self) -> Vec<&str> {
         self.data.iter().map(|it| it.0.as_str()).collect()
     }
+
+
+    /// Returns true if the [`Self`] instance represents a multi-label classification dataset.
+    /// Otherwise false is returned.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use bagheera::classification::ClassificationDataset;
+    ///
+    /// let cls_db = ClassificationDataset::new(30u16, true);
+    /// assert_eq!(cls_db.is_multilabel(), true);
+    /// ```
+    ///
+    /// ```rust
+    /// use bagheera::classification::ClassificationDataset;
+    ///
+    /// let cls_db = ClassificationDataset::new(1000u16, false);
+    /// assert_eq!(cls_db.is_multilabel(), false);
+    /// ```
+    pub fn is_multilabel(&self) -> bool{
+        self.is_multilabel
+    }
 }
 
 
