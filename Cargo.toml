@@ -13,6 +13,7 @@ keywords = ["computer vision", "evaluation"]
 [dependencies]
 num-traits = "0.2.14"
 fast-float = "0.2.0"
+log = "0.4.14"
 
 [dev-dependencies]
 float-cmp = "0.9.0"
