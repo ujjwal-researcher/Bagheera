@@ -318,3 +318,63 @@ impl<T1: num_traits::PrimInt + num_traits::Unsigned + num_traits::FromPrimitive,
 }
 
 
+/// Generic struct representing an image classification dataset.
+pub struct ClassificationDataset<T1: num_traits::PrimInt + num_traits::Unsigned + num_traits::FromPrimitive> {
+    num_classes: T1,
+    data: HashMap<String, Vec<bool>>,
+    is_multilabel: bool,
+}
+
+impl<T1: num_traits::PrimInt + num_traits::Unsigned + num_traits::FromPrimitive> ClassificationDataset<T1> {
+    /// Returns a new empty instance of [`Self<T1>`].
+    ///
+    /// Images can be added to the instance using the [`Self::add()`] function.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use bagheera::classification::ClassificationDataset;
+    ///
+    /// let cls_db = ClassificationDataset::new(30u8, false);
+    /// assert_eq!(cls_db.num_classes(), 30u8);
+    /// ```
+    pub fn new(num_classes: T1, is_multilabel: bool) -> Self {
+        ClassificationDataset {
+            num_classes,
+            data: HashMap::<String, Vec<bool>>::new(),
+            is_multilabel,
+        }
+    }
+    /// Returns the number of object classes in the [`Self`] instance.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use bagheera::classification::ClassificationDataset;
+    ///  let cls_db = ClassificationDataset::<u32>::new(20u32, false);
+    ///  assert_eq!(cls_db.num_classes(), 20u32);
+    /// ```
+    ///
+    /// ```rust
+    /// use bagheera::classification::ClassificationDataset;
+    ///  let cls_db = ClassificationDataset::<u128>::new(2000u128, true);
+    ///  assert_eq!(cls_db.num_classes(), 2000u32);
+    /// ```
+    pub fn num_classes(&self) -> T1 {
+        self.num_classes
+    }
+
+    pub fn num_images(&self) -> usize {
+        self.data.len()
+    }
+
+    pub fn image_is_present(&self, imagename: &str) -> bool {
+        self.data.contains_key(imagename)
+    }
+
+    pub fn list_images(&self) -> Vec<&str> {
+        self.data.iter().map(|it| it.0.as_str()).collect()
+    }
+}
+
+
