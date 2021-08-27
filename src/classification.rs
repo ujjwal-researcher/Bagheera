@@ -6,18 +6,19 @@
 
 use std::collections::HashMap;
 use std::io;
+use std::io::{BufRead, BufReader, Read, Seek, SeekFrom};
 
 use crate::errors;
 use crate::utils;
 use crate::utils::TopK;
 
 /// Generic struct to store the image classification output for a number of images.
-pub struct ClassificationOutput<T1: num_traits::PrimInt + num_traits::Unsigned + num_traits::FromPrimitive, T2: num_traits::Float + fast_float::FastFloat> {
+pub struct ClassificationOutput<T1: num_traits::PrimInt + num_traits::Unsigned + num_traits::FromPrimitive, T2: num_traits::Float + fast_float::FastFloat + num_traits::FromPrimitive> {
     num_classes: T1,
     data: HashMap<String, Vec<T2>>,
 }
 
-impl<T1: num_traits::PrimInt + num_traits::Unsigned + num_traits::FromPrimitive, T2: num_traits::Float + fast_float::FastFloat> ClassificationOutput<T1, T2> {
+impl<T1: num_traits::PrimInt + num_traits::Unsigned + num_traits::FromPrimitive, T2: num_traits::Float + fast_float::FastFloat + num_traits::FromPrimitive> ClassificationOutput<T1, T2> {
     /// Creates a new empty instance of [`Self`]
     ///
     /// Items need to be subsequently added to it using [`Self::add()`]
@@ -70,6 +71,52 @@ impl<T1: num_traits::PrimInt + num_traits::Unsigned + num_traits::FromPrimitive,
         } else {
             Err(errors::image_not_present_error(image_name))
         }
+    }
+
+    /// Creates a new instance of [`Self`] from a CSV file.
+    pub fn from_csv_file(csv_filename: &str, num_classes: T1) -> Result<Self, io::Error> {
+        let fid = utils::open_file(csv_filename).unwrap();
+        let mut bufread = BufReader::new(fid);
+        let mut numlines = 0usize;
+        for _ in bufread.by_ref().lines() {
+            numlines += 1;
+        }
+        let mut data_hmap = HashMap::<String, Vec<T2>>::with_capacity(numlines);
+        bufread.seek(SeekFrom::Start(0u64));
+        for (line_num, line) in bufread.lines().enumerate() {
+            let line = line.unwrap();
+            let line_trimmed = line.trim();
+            if line_trimmed.is_empty() {
+                return Err(io::Error::new(io::ErrorKind::InvalidData, format!("Line {} of {} is empty. This is an error.", line_num, csv_filename)));
+            }
+            let mut imagename = String::new();
+
+            for (token_num, token) in line_trimmed.split(",").enumerate() {
+                if token_num == 0usize {
+                    imagename = token.to_string();
+                    data_hmap.insert(
+                        token.to_string(),
+                        Vec::<T2>::new(),
+                    );
+                    break;
+                }
+
+                data_hmap.get_mut(&imagename).unwrap().push(fast_float::parse::<T2, _>(token).unwrap());
+            }
+
+            if T1::from_usize(data_hmap[&imagename].len()).unwrap() != num_classes {
+                return Err(
+                    io::Error::new(
+                        io::ErrorKind::InvalidData,
+                        format!("Line {} of {} contains {} classes when num_classes is specified as {}", line_num, csv_filename, data_hmap[&imagename].len(), num_classes.to_usize().unwrap()),
+                    )
+                );
+            }
+        }
+        Ok(ClassificationOutput {
+            num_classes,
+            data: data_hmap,
+        })
     }
     /// Returns the number of object classes.
     ///
