@@ -8,6 +8,8 @@ use std::collections::HashMap;
 use std::io;
 use std::io::{BufRead, BufReader, Read, Seek, SeekFrom};
 
+use log;
+
 use crate::errors;
 use crate::utils;
 use crate::utils::TopK;
@@ -67,6 +69,7 @@ impl<T1: num_traits::PrimInt + num_traits::Unsigned + num_traits::FromPrimitive,
     pub fn add(&mut self, image_name: &str, confidence_vector: Vec<T2>) -> Result<(), io::Error> {
         if confidence_vector.len() == T1::to_usize(&self.num_classes).unwrap() {
             &self.data.insert(image_name.to_string(), confidence_vector);
+            log::debug!("Added record to ClassificationOutput.");
             Ok(())
         } else {
             Err(errors::image_not_present_error(image_name))
@@ -81,6 +84,7 @@ impl<T1: num_traits::PrimInt + num_traits::Unsigned + num_traits::FromPrimitive,
         for _ in bufread.by_ref().lines() {
             numlines += 1;
         }
+        log::debug!("There are a total of {} lines in {}.", numlines, csv_filename);
         let mut data_hmap = HashMap::<String, Vec<T2>>::with_capacity(numlines);
         bufread.seek(SeekFrom::Start(0u64)).unwrap();
         for (line_num, line) in bufread.lines().enumerate() {
