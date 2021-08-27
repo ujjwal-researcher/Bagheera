@@ -124,7 +124,7 @@ mod tests {
             cls_out.add(&rand_name, rand_vec).unwrap();
         }
 
-        let topk_ind = cls_out.topk_for_image(&test_image, 3usize).unwrap();
-        assert_eq!(topk_ind, vec![999usize, 998usize, 997usize])
+        let topk_ind = cls_out.topk_for_image(&test_image, 5usize).unwrap();
+        assert_eq!(topk_ind, vec![999usize, 998usize, 997usize, 996usize, 995usize]);
     }
 }
