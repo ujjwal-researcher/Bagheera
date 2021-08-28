@@ -618,8 +618,7 @@ impl<
     where
         T2: Copy,
     {
-        let result: Vec<DIFFERENCE> = self
-            .dataset
+        self.dataset
             .get_gt(imagename)
             .unwrap()
             .iter()
@@ -627,9 +626,7 @@ impl<
                 true => DIFFERENCE::NEGATIVE,
                 _ => DIFFERENCE::POSITIVE,
             })
-            .collect();
-
-        result
+            .collect::<Vec<DIFFERENCE>>()
     }
 }
 
