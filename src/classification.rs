@@ -460,6 +460,10 @@ impl<T1: num_traits::PrimInt + num_traits::Unsigned + num_traits::FromPrimitive>
     pub fn is_multilabel(&self) -> bool {
         self.is_multilabel
     }
+
+    pub fn is_empty(&self) -> bool{
+        self.data.is_empty()
+    }
 }
 
 pub trait EvaluationOptions {
