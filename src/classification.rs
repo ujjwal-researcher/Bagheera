@@ -433,4 +433,10 @@ impl<T1: num_traits::PrimInt + num_traits::Unsigned + num_traits::FromPrimitive>
     }
 }
 
+/// Generic struct abstracting the data available to a judge for classification evaluation.
+pub struct ClassificationJudge<'a, T1: num_traits::PrimInt + num_traits::Unsigned + num_traits::FromPrimitive, T2: num_traits::Float + fast_float::FastFloat + num_traits::FromPrimitive> {
+    classifier_output: &'a ClassificationOutput<T1, T2>,
+    dataset: &'a ClassificationDataset<T1>,
+}
+
 
