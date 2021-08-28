@@ -12,7 +12,7 @@ use log;
 
 use crate::errors;
 use crate::utils;
-use crate::utils::TopK;
+use crate::utils::{ToOneHot, TopK};
 
 /// Generic struct to store the image classification output for a number of images.
 pub struct ClassificationOutput<T1: num_traits::PrimInt + num_traits::Unsigned + num_traits::FromPrimitive, T2: num_traits::Float + fast_float::FastFloat + num_traits::FromPrimitive> {
@@ -345,6 +345,32 @@ impl<T1: num_traits::PrimInt + num_traits::Unsigned + num_traits::FromPrimitive>
             is_multilabel,
         }
     }
+
+
+    /// Adds a new GT to the [`Self`] instance.
+    ///
+    /// If `imagename` is already in [`Self`] instance, an [io::Error] instance is returned.
+    /// In case of issues during one-hot conversion, a panic happens.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use bagheera::classification::ClassificationDataset;
+    ///
+    /// let mut cls_db = ClassificationDataset::new(5u16, false);
+    /// cls_db.add("hello.jpg", &vec![1u16]);
+    /// assert_eq!(cls_db.num_images(), 1usize);
+    /// ```
+    pub fn add(&mut self, imagename: &str, category_labels: &Vec<T1>) -> Result<(), io::Error> {
+        if self.image_is_present(imagename) {
+            return Err(
+                io::Error::new(io::ErrorKind::InvalidInput, format!("Image {} was already present.", imagename))
+            );
+        }
+
+        self.data.insert(imagename.to_string(), category_labels.convert(self.num_classes()));
+        Ok(())
+    }
     /// Returns the number of object classes in the [`Self`] instance.
     ///
     /// # Examples
@@ -395,7 +421,7 @@ impl<T1: num_traits::PrimInt + num_traits::Unsigned + num_traits::FromPrimitive>
     /// let cls_db = ClassificationDataset::new(1000u16, false);
     /// assert_eq!(cls_db.is_multilabel(), false);
     /// ```
-    pub fn is_multilabel(&self) -> bool{
+    pub fn is_multilabel(&self) -> bool {
         self.is_multilabel
     }
 }
