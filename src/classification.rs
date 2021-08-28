@@ -48,6 +48,36 @@ impl<T1: num_traits::PrimInt + num_traits::Unsigned + num_traits::FromPrimitive,
             data: HashMap::<String, Vec<T2>>::new(),
         }
     }
+}
+
+impl<T1: num_traits::PrimInt + num_traits::Unsigned + num_traits::FromPrimitive, T2: num_traits::Float + fast_float::FastFloat + num_traits::FromPrimitive> ClassificationOutput<T1, T2> {
+    // /// Creates a new empty instance of [`Self`]
+    // ///
+    // /// Items need to be subsequently added to it using [`Self::add()`]
+    // ///
+    // /// # Examples
+    // ///
+    // /// ```rust
+    // /// use bagheera::classification::ClassificationOutput;
+    // /// let cls_out = ClassificationOutput::<u8, f64>::new(20u8);
+    // /// assert_eq!(cls_out.num_classes(), 20u8);
+    // /// assert_eq!(cls_out.is_empty(), true);
+    // /// ```
+    // ///
+    // /// ```rust
+    // /// // The following creates a new empty instance of ClassificationOutput<usize,f32> with     ///
+    // /// //  1000 classes.
+    // /// use bagheera::classification::ClassificationOutput;
+    // /// let mut cls_output = ClassificationOutput::<usize, f32>::new(1000usize);
+    // /// assert_eq!(cls_output.num_classes(), 1000usize);
+    // /// assert_eq!(cls_output.is_empty(), true);
+    // /// ```
+    // pub fn new(num_classes: T1) -> Self {
+    //     ClassificationOutput {
+    //         num_classes,
+    //         data: HashMap::<String, Vec<T2>>::new(),
+    //     }
+    // }
 
     /// Adds a new entry to a [`Self`] instance.
     ///
@@ -433,10 +463,80 @@ impl<T1: num_traits::PrimInt + num_traits::Unsigned + num_traits::FromPrimitive>
     }
 }
 
+pub trait EvaluationOptions {
+    fn single_label(&self) -> bool;
+    fn gen_default() -> Self;
+    fn list_options(&self) -> &[&str];
+}
+
+
+macro_rules! create_with_field_names {
+    (pub struct $name:ident { $($fname:ident : $ftype:ty),* }) => {
+         pub struct $name {
+            $($fname : $ftype),*
+        }
+
+        impl $name {
+            pub fn field_names() -> &'static [&'static str] {
+                static NAMES: &'static [&'static str] = &[$(stringify!($fname)),*];
+                NAMES
+            }
+        }
+    }
+}
+
+create_with_field_names! {
+    pub struct SingleLabelEvaluationOptions{
+        k_values : Vec<usize>,
+        per_class_analysis : bool
+    }
+}
+
+create_with_field_names! {
+    pub struct MultipleLabelEvaluationOptions{
+        per_class_analysis : bool
+    }
+}
+
+impl EvaluationOptions for SingleLabelEvaluationOptions {
+    fn single_label(&self) -> bool {
+        true
+    }
+
+    fn gen_default() -> Self {
+        SingleLabelEvaluationOptions {
+            k_values: vec![1usize, 5usize, 10usize],
+            per_class_analysis: true,
+        }
+    }
+
+    fn list_options(&self) -> &[&str] {
+        SingleLabelEvaluationOptions::field_names()
+    }
+}
+
+impl EvaluationOptions for MultipleLabelEvaluationOptions {
+    fn single_label(&self) -> bool {
+        false
+    }
+
+    fn gen_default() -> Self {
+        MultipleLabelEvaluationOptions {
+            per_class_analysis: true
+        }
+    }
+
+    fn list_options(&self) -> &[&str] {
+        MultipleLabelEvaluationOptions::field_names()
+    }
+}
+
+
 /// Generic struct abstracting the data available to a judge for classification evaluation.
 pub struct ClassificationJudge<'a, T1: num_traits::PrimInt + num_traits::Unsigned + num_traits::FromPrimitive, T2: num_traits::Float + fast_float::FastFloat + num_traits::FromPrimitive> {
     classifier_output: &'a ClassificationOutput<T1, T2>,
     dataset: &'a ClassificationDataset<T1>,
 }
+
 
 
