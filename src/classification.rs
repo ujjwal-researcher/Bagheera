@@ -7,7 +7,6 @@
 use std::collections::HashMap;
 use std::io;
 use std::io::{BufRead, BufReader, Read, Seek, SeekFrom};
-use std::ops;
 use std::option::Option;
 
 use log;
@@ -15,7 +14,7 @@ use log;
 use crate::errors;
 use crate::utils;
 use crate::utils::{ToOneHot, TopK};
-
+use num_traits::ToPrimitive;
 /// Generic struct to store the image classification output for a number of images.
 pub struct ClassificationOutput<
     T1: num_traits::PrimInt + num_traits::Unsigned + num_traits::FromPrimitive,
@@ -462,9 +461,34 @@ impl<T1: num_traits::PrimInt + num_traits::Unsigned + num_traits::FromPrimitive>
     pub fn is_multilabel(&self) -> bool {
         self.is_multilabel
     }
-
-    pub fn is_empty(&self) -> bool {
-        self.data.is_empty()
+    /// Gets the groundtruth for `imagename` in [`Self`] instance.
+    ///
+    /// If `imagename` is not in the [`Self`] instance, an [io::Error]
+    /// instance is returned.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use bagheera::classification::ClassificationDataset;
+    ///
+    /// let mut cls_db = ClassificationDataset::new(5u16, false);
+    /// cls_db.add("hello.jpg", &vec![1u16]);
+    /// assert_eq!(cls_db.get_gt("hello.jpg").unwrap(), &vec![false, true, false, false, false]);
+    /// ```
+    ///
+    /// ```rust
+    /// use bagheera::classification::ClassificationDataset;
+    ///
+    /// let mut cls_db = ClassificationDataset::new(5u16, true);
+    /// cls_db.add("hello.jpg", &vec![1u16, 3u16]);
+    /// assert_eq!(cls_db.get_gt("hello.jpg").unwrap(), &vec![false, true, false, true, false]);
+    /// ```
+    pub fn get_gt(&self, imagename: &str) -> Result<&Vec<bool>, io::Error> {
+        if !self.image_is_present(imagename) {
+            Err(errors::image_not_present_error(imagename))
+        } else {
+            Ok(&self.data[imagename])
+        }
     }
 }
 
@@ -562,6 +586,11 @@ pub struct ClassificationJudge<
     evaluation_options: T3,
 }
 
+enum DIFFERENCE {
+    POSITIVE,
+    NEGATIVE,
+}
+
 impl<
         'a,
         T1: num_traits::PrimInt + num_traits::Unsigned + num_traits::FromPrimitive,
@@ -583,6 +612,24 @@ impl<
             dataset,
             evaluation_options,
         }
+    }
+
+    fn get_difference(&self, imagename: &str) -> Vec<DIFFERENCE>
+    where
+        T2: Copy,
+    {
+        let result: Vec<DIFFERENCE> = self
+            .dataset
+            .get_gt(imagename)
+            .unwrap()
+            .iter()
+            .map(|x| match *x {
+                true => DIFFERENCE::NEGATIVE,
+                _ => DIFFERENCE::POSITIVE,
+            })
+            .collect();
+
+        result
     }
 }
 
