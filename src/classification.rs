@@ -367,7 +367,14 @@ impl<T1: num_traits::PrimInt + num_traits::Unsigned + num_traits::FromPrimitive>
                 io::Error::new(io::ErrorKind::InvalidInput, format!("Image {} was already present.", imagename))
             );
         }
-
+        if !self.is_multilabel && category_labels.len() > 1 {
+            return Err(
+                io::Error::new(
+                    io::ErrorKind::InvalidData,
+                    "Tried adding multi-label data to a ClassificationDataset instance that is not multilabel.",
+                )
+            );
+        }
         self.data.insert(imagename.to_string(), category_labels.convert(self.num_classes()));
         Ok(())
     }
