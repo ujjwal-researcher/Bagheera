@@ -515,6 +515,15 @@ impl EvaluationOptions for SingleLabelEvaluationOptions {
     }
 }
 
+impl SingleLabelEvaluationOptions {
+    fn new(&self, k_values: &Vec<usize>, per_class_analysis: bool) -> Self {
+        SingleLabelEvaluationOptions {
+            k_values: k_values.to_vec(),
+            per_class_analysis,
+        }
+    }
+}
+
 impl EvaluationOptions for MultipleLabelEvaluationOptions {
     fn single_label(&self) -> bool {
         false
@@ -528,6 +537,14 @@ impl EvaluationOptions for MultipleLabelEvaluationOptions {
 
     fn list_options(&self) -> &[&str] {
         MultipleLabelEvaluationOptions::field_names()
+    }
+}
+
+impl MultipleLabelEvaluationOptions {
+    fn new(per_class_analysis: bool) -> Self {
+        MultipleLabelEvaluationOptions {
+            per_class_analysis
+        }
     }
 }
 
