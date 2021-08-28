@@ -55,40 +55,6 @@ impl<
             data: HashMap::<String, Vec<T2>>::new(),
         }
     }
-}
-
-impl<
-        T1: num_traits::PrimInt + num_traits::Unsigned + num_traits::FromPrimitive,
-        T2: num_traits::Float + fast_float::FastFloat + num_traits::FromPrimitive,
-    > ClassificationOutput<T1, T2>
-{
-    // /// Creates a new empty instance of [`Self`]
-    // ///
-    // /// Items need to be subsequently added to it using [`Self::add()`]
-    // ///
-    // /// # Examples
-    // ///
-    // /// ```rust
-    // /// use bagheera::classification::ClassificationOutput;
-    // /// let cls_out = ClassificationOutput::<u8, f64>::new(20u8);
-    // /// assert_eq!(cls_out.num_classes(), 20u8);
-    // /// assert_eq!(cls_out.is_empty(), true);
-    // /// ```
-    // ///
-    // /// ```rust
-    // /// // The following creates a new empty instance of ClassificationOutput<usize,f32> with     ///
-    // /// //  1000 classes.
-    // /// use bagheera::classification::ClassificationOutput;
-    // /// let mut cls_output = ClassificationOutput::<usize, f32>::new(1000usize);
-    // /// assert_eq!(cls_output.num_classes(), 1000usize);
-    // /// assert_eq!(cls_output.is_empty(), true);
-    // /// ```
-    // pub fn new(num_classes: T1) -> Self {
-    //     ClassificationOutput {
-    //         num_classes,
-    //         data: HashMap::<String, Vec<T2>>::new(),
-    //     }
-    // }
 
     /// Adds a new entry to a [`Self`] instance.
     ///
