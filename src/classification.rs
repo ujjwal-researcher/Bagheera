@@ -628,6 +628,15 @@ impl<
             })
             .collect::<Vec<DIFFERENCE>>()
     }
+
+    pub fn threshold_confidence(&self, conf: &Vec<T2>, threshold: T2) -> Vec<T2> {
+        conf.iter()
+            .map(|x| match *x > threshold {
+                true => *x,
+                _ => T2::zero(),
+            })
+            .collect::<Vec<T2>>()
+    }
 }
 
 pub struct ClassificationResult<
@@ -639,9 +648,4 @@ pub struct ClassificationResult<
     per_class_recall: Option<Vec<T2>>,
     per_class_ap: Option<Vec<T2>>,
     per_class_f1: Option<Vec<T2>>,
-}
-
-pub enum SIGN {
-    POSITIVE,
-    NEGATIVE,
 }
