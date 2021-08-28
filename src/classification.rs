@@ -583,10 +583,8 @@ pub struct ClassificationJudge<
     'a,
     T1: num_traits::PrimInt + num_traits::Unsigned + num_traits::FromPrimitive,
     T2: num_traits::Float + fast_float::FastFloat + num_traits::FromPrimitive,
-    T3,
-> where
     T3: EvaluationOptions,
-{
+> {
     classifier_output: &'a ClassificationOutput<T1, T2>,
     dataset: &'a ClassificationDataset<T1>,
     evaluation_options: T3,
@@ -596,17 +594,14 @@ impl<
         'a,
         T1: num_traits::PrimInt + num_traits::Unsigned + num_traits::FromPrimitive,
         T2: num_traits::Float + fast_float::FastFloat + num_traits::FromPrimitive,
-        T3,
+        T3: EvaluationOptions,
     > ClassificationJudge<'a, T1, T2, T3>
 {
     pub fn new(
         classifier_output: &'a ClassificationOutput<T1, T2>,
         dataset: &'a ClassificationDataset<T1>,
         evaluation_options: T3,
-    ) -> Self
-    where
-        T3: EvaluationOptions,
-    {
+    ) -> Self {
         if !(dataset.is_multilabel() && evaluation_options.is_multilabel()) {
             panic!();
         }
