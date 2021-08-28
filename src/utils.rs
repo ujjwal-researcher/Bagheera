@@ -1,4 +1,4 @@
-//! Utilities used in bagheer
+//! Utilities used in bagheera
 
 use std::cmp::Ordering;
 use std::collections::BinaryHeap;
