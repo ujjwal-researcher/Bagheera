@@ -7,6 +7,8 @@
 use std::collections::HashMap;
 use std::io;
 use std::io::{BufRead, BufReader, Read, Seek, SeekFrom};
+use std::ops;
+use std::option::Option;
 
 use log;
 
@@ -461,7 +463,7 @@ impl<T1: num_traits::PrimInt + num_traits::Unsigned + num_traits::FromPrimitive>
         self.is_multilabel
     }
 
-    pub fn is_empty(&self) -> bool{
+    pub fn is_empty(&self) -> bool {
         self.data.is_empty()
     }
 }
@@ -582,4 +584,20 @@ impl<
             evaluation_options,
         }
     }
+}
+
+pub struct ClassificationResult<
+    T2: num_traits::Float + fast_float::FastFloat + num_traits::FromPrimitive,
+> {
+    topk_accuracy: HashMap<usize, T2>,
+    per_class_accuracy: Option<Vec<T2>>,
+    per_class_precision: Option<Vec<T2>>,
+    per_class_recall: Option<Vec<T2>>,
+    per_class_ap: Option<Vec<T2>>,
+    per_class_f1: Option<Vec<T2>>,
+}
+
+pub enum SIGN {
+    POSITIVE,
+    NEGATIVE,
 }
