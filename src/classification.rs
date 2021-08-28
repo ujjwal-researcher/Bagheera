@@ -15,12 +15,19 @@ use crate::utils;
 use crate::utils::{ToOneHot, TopK};
 
 /// Generic struct to store the image classification output for a number of images.
-pub struct ClassificationOutput<T1: num_traits::PrimInt + num_traits::Unsigned + num_traits::FromPrimitive, T2: num_traits::Float + fast_float::FastFloat + num_traits::FromPrimitive> {
+pub struct ClassificationOutput<
+    T1: num_traits::PrimInt + num_traits::Unsigned + num_traits::FromPrimitive,
+    T2: num_traits::Float + fast_float::FastFloat + num_traits::FromPrimitive,
+> {
     num_classes: T1,
     data: HashMap<String, Vec<T2>>,
 }
 
-impl<T1: num_traits::PrimInt + num_traits::Unsigned + num_traits::FromPrimitive, T2: num_traits::Float + fast_float::FastFloat + num_traits::FromPrimitive> ClassificationOutput<T1, T2> {
+impl<
+        T1: num_traits::PrimInt + num_traits::Unsigned + num_traits::FromPrimitive,
+        T2: num_traits::Float + fast_float::FastFloat + num_traits::FromPrimitive,
+    > ClassificationOutput<T1, T2>
+{
     /// Creates a new empty instance of [`Self`]
     ///
     /// Items need to be subsequently added to it using [`Self::add()`]
@@ -50,7 +57,11 @@ impl<T1: num_traits::PrimInt + num_traits::Unsigned + num_traits::FromPrimitive,
     }
 }
 
-impl<T1: num_traits::PrimInt + num_traits::Unsigned + num_traits::FromPrimitive, T2: num_traits::Float + fast_float::FastFloat + num_traits::FromPrimitive> ClassificationOutput<T1, T2> {
+impl<
+        T1: num_traits::PrimInt + num_traits::Unsigned + num_traits::FromPrimitive,
+        T2: num_traits::Float + fast_float::FastFloat + num_traits::FromPrimitive,
+    > ClassificationOutput<T1, T2>
+{
     // /// Creates a new empty instance of [`Self`]
     // ///
     // /// Items need to be subsequently added to it using [`Self::add()`]
@@ -114,7 +125,11 @@ impl<T1: num_traits::PrimInt + num_traits::Unsigned + num_traits::FromPrimitive,
         for _ in bufread.by_ref().lines() {
             numlines += 1;
         }
-        log::debug!("There are a total of {} lines in {}.", numlines, csv_filename);
+        log::debug!(
+            "There are a total of {} lines in {}.",
+            numlines,
+            csv_filename
+        );
         let mut data_hmap = HashMap::<String, Vec<T2>>::with_capacity(numlines);
         bufread.seek(SeekFrom::Start(0u64)).unwrap();
         log::debug!("Reading and parsing lines from the file.");
@@ -122,29 +137,39 @@ impl<T1: num_traits::PrimInt + num_traits::Unsigned + num_traits::FromPrimitive,
             let line = line.unwrap();
             let line_trimmed = line.trim();
             if line_trimmed.is_empty() {
-                return Err(io::Error::new(io::ErrorKind::InvalidData, format!("Line {} of {} is empty. This is an error.", line_num, csv_filename)));
+                return Err(io::Error::new(
+                    io::ErrorKind::InvalidData,
+                    format!(
+                        "Line {} of {} is empty. This is an error.",
+                        line_num, csv_filename
+                    ),
+                ));
             }
             let mut imagename = String::new();
 
             for (token_num, token) in line_trimmed.split(",").enumerate() {
                 if token_num == 0usize {
                     imagename = token.to_string();
-                    data_hmap.insert(
-                        token.to_string(),
-                        Vec::<T2>::new(),
-                    );
+                    data_hmap.insert(token.to_string(), Vec::<T2>::new());
                     continue;
                 }
 
-                data_hmap.get_mut(&imagename).unwrap().push(fast_float::parse::<T2, _>(token).unwrap());
+                data_hmap
+                    .get_mut(&imagename)
+                    .unwrap()
+                    .push(fast_float::parse::<T2, _>(token).unwrap());
             }
             if T1::from_usize(data_hmap[&imagename].len()).unwrap() != num_classes {
-                return Err(
-                    io::Error::new(
-                        io::ErrorKind::InvalidData,
-                        format!("Line {} of {} contains {} classes when num_classes is specified as {}", line_num, csv_filename, data_hmap[&imagename].len(), num_classes.to_usize().unwrap()),
-                    )
-                );
+                return Err(io::Error::new(
+                    io::ErrorKind::InvalidData,
+                    format!(
+                        "Line {} of {} contains {} classes when num_classes is specified as {}",
+                        line_num,
+                        csv_filename,
+                        data_hmap[&imagename].len(),
+                        num_classes.to_usize().unwrap()
+                    ),
+                ));
             }
         }
         log::debug!("Finished parsing the file.");
@@ -201,7 +226,6 @@ impl<T1: num_traits::PrimInt + num_traits::Unsigned + num_traits::FromPrimitive,
         self.data.len()
     }
 
-
     /// Returns true if `image_name` is present in a [`Self`] instance. False otherwise.
     ///
     /// # Examples
@@ -251,7 +275,6 @@ impl<T1: num_traits::PrimInt + num_traits::Unsigned + num_traits::FromPrimitive,
     pub fn list_images(&self) -> Vec<&str> {
         self.data.iter().map(|it| it.0.as_str()).collect()
     }
-
 
     /// Returns true if a [`Self`] instance is empty. False otherwise.
     ///
@@ -337,25 +360,33 @@ impl<T1: num_traits::PrimInt + num_traits::Unsigned + num_traits::FromPrimitive,
     ///     let topk_ind = cls_out.topk_for_image(&test_image,3usize).unwrap();
     ///     assert_eq!(topk_ind, vec![999usize, 998usize, 997usize])
     ///```
-    pub fn topk_for_image(&self, imagename: &str, k: usize) -> Result<Vec<usize>, io::Error> where Vec<T2>: utils::TopK {
+    pub fn topk_for_image(&self, imagename: &str, k: usize) -> Result<Vec<usize>, io::Error>
+    where
+        Vec<T2>: utils::TopK,
+    {
         if !self.image_is_present(imagename) {
             return Err(errors::image_not_present_error(imagename));
         }
-        let topk_indices = (*self.confidence_for_image(imagename).unwrap()).top_k(k).unwrap();
+        let topk_indices = (*self.confidence_for_image(imagename).unwrap())
+            .top_k(k)
+            .unwrap();
 
         Ok(topk_indices)
     }
 }
 
-
 /// Generic struct representing an image classification dataset.
-pub struct ClassificationDataset<T1: num_traits::PrimInt + num_traits::Unsigned + num_traits::FromPrimitive> {
+pub struct ClassificationDataset<
+    T1: num_traits::PrimInt + num_traits::Unsigned + num_traits::FromPrimitive,
+> {
     num_classes: T1,
     data: HashMap<String, Vec<bool>>,
     is_multilabel: bool,
 }
 
-impl<T1: num_traits::PrimInt + num_traits::Unsigned + num_traits::FromPrimitive> ClassificationDataset<T1> {
+impl<T1: num_traits::PrimInt + num_traits::Unsigned + num_traits::FromPrimitive>
+    ClassificationDataset<T1>
+{
     /// Returns a new empty instance of [`Self<T1>`].
     ///
     /// Images can be added to the instance using the [`Self::add()`] function.
@@ -376,7 +407,6 @@ impl<T1: num_traits::PrimInt + num_traits::Unsigned + num_traits::FromPrimitive>
         }
     }
 
-
     /// Adds a new GT to the [`Self`] instance.
     ///
     /// If `imagename` is already in [`Self`] instance, an [io::Error] instance is returned.
@@ -393,9 +423,10 @@ impl<T1: num_traits::PrimInt + num_traits::Unsigned + num_traits::FromPrimitive>
     /// ```
     pub fn add(&mut self, imagename: &str, category_labels: &Vec<T1>) -> Result<(), io::Error> {
         if self.image_is_present(imagename) {
-            return Err(
-                io::Error::new(io::ErrorKind::InvalidInput, format!("Image {} was already present.", imagename))
-            );
+            return Err(io::Error::new(
+                io::ErrorKind::InvalidInput,
+                format!("Image {} was already present.", imagename),
+            ));
         }
         if !self.is_multilabel && category_labels.len() > 1 {
             return Err(
@@ -405,7 +436,10 @@ impl<T1: num_traits::PrimInt + num_traits::Unsigned + num_traits::FromPrimitive>
                 )
             );
         }
-        self.data.insert(imagename.to_string(), category_labels.convert(self.num_classes()));
+        self.data.insert(
+            imagename.to_string(),
+            category_labels.convert(self.num_classes()),
+        );
         Ok(())
     }
     /// Returns the number of object classes in the [`Self`] instance.
@@ -439,7 +473,6 @@ impl<T1: num_traits::PrimInt + num_traits::Unsigned + num_traits::FromPrimitive>
         self.data.iter().map(|it| it.0.as_str()).collect()
     }
 
-
     /// Returns true if the [`Self`] instance represents a multi-label classification dataset.
     /// Otherwise false is returned.
     ///
@@ -464,11 +497,10 @@ impl<T1: num_traits::PrimInt + num_traits::Unsigned + num_traits::FromPrimitive>
 }
 
 pub trait EvaluationOptions {
-    fn single_label(&self) -> bool;
+    fn is_multilabel(&self) -> bool;
     fn gen_default() -> Self;
     fn list_options(&self) -> &[&str];
 }
-
 
 macro_rules! create_with_field_names {
     (pub struct $name:ident { $($fname:ident : $ftype:ty),* }) => {
@@ -499,8 +531,8 @@ create_with_field_names! {
 }
 
 impl EvaluationOptions for SingleLabelEvaluationOptions {
-    fn single_label(&self) -> bool {
-        true
+    fn is_multilabel(&self) -> bool {
+        false
     }
 
     fn gen_default() -> Self {
@@ -525,13 +557,13 @@ impl SingleLabelEvaluationOptions {
 }
 
 impl EvaluationOptions for MultipleLabelEvaluationOptions {
-    fn single_label(&self) -> bool {
-        false
+    fn is_multilabel(&self) -> bool {
+        true
     }
 
     fn gen_default() -> Self {
         MultipleLabelEvaluationOptions {
-            per_class_analysis: true
+            per_class_analysis: true,
         }
     }
 
@@ -542,18 +574,47 @@ impl EvaluationOptions for MultipleLabelEvaluationOptions {
 
 impl MultipleLabelEvaluationOptions {
     fn new(per_class_analysis: bool) -> Self {
-        MultipleLabelEvaluationOptions {
-            per_class_analysis
-        }
+        MultipleLabelEvaluationOptions { per_class_analysis }
     }
 }
 
-
 /// Generic struct abstracting the data available to a judge for classification evaluation.
-pub struct ClassificationJudge<'a, T1: num_traits::PrimInt + num_traits::Unsigned + num_traits::FromPrimitive, T2: num_traits::Float + fast_float::FastFloat + num_traits::FromPrimitive> {
+pub struct ClassificationJudge<
+    'a,
+    T1: num_traits::PrimInt + num_traits::Unsigned + num_traits::FromPrimitive,
+    T2: num_traits::Float + fast_float::FastFloat + num_traits::FromPrimitive,
+    T3,
+> where
+    T3: EvaluationOptions,
+{
     classifier_output: &'a ClassificationOutput<T1, T2>,
     dataset: &'a ClassificationDataset<T1>,
+    evaluation_options: T3,
 }
 
+impl<
+        'a,
+        T1: num_traits::PrimInt + num_traits::Unsigned + num_traits::FromPrimitive,
+        T2: num_traits::Float + fast_float::FastFloat + num_traits::FromPrimitive,
+        T3,
+    > ClassificationJudge<'a, T1, T2, T3>
+{
+    pub fn new(
+        classifier_output: &'a ClassificationOutput<T1, T2>,
+        dataset: &'a ClassificationDataset<T1>,
+        evaluation_options: T3,
+    ) -> Self
+    where
+        T3: EvaluationOptions,
+    {
+        if !(dataset.is_multilabel() && evaluation_options.is_multilabel()) {
+            panic!();
+        }
 
-
+        ClassificationJudge {
+            classifier_output,
+            dataset,
+            evaluation_options,
+        }
+    }
+}

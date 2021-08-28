@@ -19,10 +19,7 @@ pub struct IndexedTuple<T: Ord> {
 
 impl<T: Ord> IndexedTuple<T> {
     pub fn new(index: usize, value: T) -> Self {
-        IndexedTuple {
-            index,
-            value,
-        }
+        IndexedTuple { index, value }
     }
     /// Returns the index of the [`Self`] instance.
     ///
@@ -125,9 +122,6 @@ pub trait TopK {
     fn top_k(&self, k: usize) -> Result<Vec<usize>, io::Error>;
 }
 
-
-
-
 macro_rules! impl_topk_non_float {
     ($($ty:ty),*) =>{
         $(
@@ -156,7 +150,6 @@ macro_rules! impl_topk_non_float {
         )*
     }
 }
-
 
 macro_rules! impl_topk_float {
     ($($ty:ty),*) =>{
@@ -188,8 +181,7 @@ macro_rules! impl_topk_float {
 }
 
 impl_topk_float!(f32, f64);
-impl_topk_non_float!(u8, i8, u16, i16, u32, i32, u64, i64,  u128, i128, usize);
-
+impl_topk_non_float!(u8, i8, u16, i16, u32, i32, u64, i64, u128, i128, usize);
 
 /// Returns a [fs::File] instance if a file exists. Otherwise
 /// returns an [io::Error] instance.
@@ -201,7 +193,6 @@ pub fn open_file(filename: &str) -> Result<fs::File, io::Error> {
         Err(errors::file_not_found(filename))
     }
 }
-
 
 /// Generic trait representing one-hot vector computation from integer class IDs.
 pub trait ToOneHot<T1: num_traits::PrimInt + num_traits::Unsigned + num_traits::FromPrimitive> {
@@ -225,11 +216,16 @@ pub trait ToOneHot<T1: num_traits::PrimInt + num_traits::Unsigned + num_traits::
     fn convert(&self, num_clases: T1) -> Vec<bool>;
 }
 
-impl<T1: num_traits::PrimInt + num_traits::Unsigned + num_traits::FromPrimitive> ToOneHot<T1> for T1 {
+impl<T1: num_traits::PrimInt + num_traits::Unsigned + num_traits::FromPrimitive> ToOneHot<T1>
+    for T1
+{
     fn convert(&self, num_classes: T1) -> Vec<bool> {
         if *self >= num_classes {
-            panic!("Tried to convert {} to one-hot vector for {} classes.", self.to_usize().unwrap(),
-                   num_classes.to_usize().unwrap());
+            panic!(
+                "Tried to convert {} to one-hot vector for {} classes.",
+                self.to_usize().unwrap(),
+                num_classes.to_usize().unwrap()
+            );
         }
         let mut one_hot = vec![false; num_classes.to_usize().unwrap()];
         one_hot[self.to_usize().unwrap()] = true;
@@ -237,13 +233,18 @@ impl<T1: num_traits::PrimInt + num_traits::Unsigned + num_traits::FromPrimitive>
     }
 }
 
-impl<T1: num_traits::PrimInt + num_traits::Unsigned + num_traits::FromPrimitive> ToOneHot<T1> for Vec<T1> {
+impl<T1: num_traits::PrimInt + num_traits::Unsigned + num_traits::FromPrimitive> ToOneHot<T1>
+    for Vec<T1>
+{
     fn convert(&self, num_classes: T1) -> Vec<bool> {
         let mut one_hot = vec![false; num_classes.to_usize().unwrap()];
         for category in self {
             if *category >= num_classes {
-                panic!("Tried to convert {} to one-hot vector for {} classes.", category.to_usize().unwrap(),
-                       num_classes.to_usize().unwrap());
+                panic!(
+                    "Tried to convert {} to one-hot vector for {} classes.",
+                    category.to_usize().unwrap(),
+                    num_classes.to_usize().unwrap()
+                );
             }
             one_hot[category.to_usize().unwrap()] = true;
         }

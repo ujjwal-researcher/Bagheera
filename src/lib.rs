@@ -49,7 +49,13 @@ mod tests {
     #[test]
     fn classification_test_image_is_present() {
         let mut cls_out = ClassificationOutput::<u8, f32>::new(30u8);
-        let images = vec!["india.jpg", "germany.png", "iran.jpg", "canada.png", "japan.jpg"];
+        let images = vec![
+            "india.jpg",
+            "germany.png",
+            "iran.jpg",
+            "canada.png",
+            "japan.jpg",
+        ];
         for img in images {
             let v = vec![1f32; 30];
             cls_out.add(img, v).unwrap();
@@ -61,7 +67,13 @@ mod tests {
     fn classification_test_list_images() {
         use std::collections::HashSet;
         let mut cls_out = ClassificationOutput::<u8, f32>::new(30u8);
-        let mut images = vec!["india.jpg", "germany.png", "iran.jpg", "canada.png", "japan.jpg"];
+        let mut images = vec![
+            "india.jpg",
+            "germany.png",
+            "iran.jpg",
+            "canada.png",
+            "japan.jpg",
+        ];
         images.sort();
         for img in &images {
             let v = vec![1f32; 30];
@@ -102,8 +114,11 @@ mod tests {
             cls_out.add(&rand_name, rand_vec).unwrap();
         }
 
-        for (lhs, rhs) in (*(cls_out.confidence_for_image(&test_image).unwrap())).iter().zip(test_vec.iter()) {
-            approx_eq!(f32, *lhs, *rhs, ulps=5);
+        for (lhs, rhs) in (*(cls_out.confidence_for_image(&test_image).unwrap()))
+            .iter()
+            .zip(test_vec.iter())
+        {
+            approx_eq!(f32, *lhs, *rhs, ulps = 5);
         }
     }
 
@@ -125,6 +140,9 @@ mod tests {
         }
 
         let topk_ind = cls_out.topk_for_image(&test_image, 5usize).unwrap();
-        assert_eq!(topk_ind, vec![999usize, 998usize, 997usize, 996usize, 995usize]);
+        assert_eq!(
+            topk_ind,
+            vec![999usize, 998usize, 997usize, 996usize, 995usize]
+        );
     }
 }
