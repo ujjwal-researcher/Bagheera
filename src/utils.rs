@@ -205,7 +205,7 @@ pub fn open_file(filename: &str) -> Result<fs::File, io::Error> {
 
 /// Generic trait representing one-hot vector computation from integer class IDs.
 pub trait ToOneHot<T1: num_traits::PrimInt + num_traits::Unsigned + num_traits::FromPrimitive> {
-    fn convert(self, num_clases: T1) -> Vec<bool>;
+    fn convert(&self, num_clases: T1) -> Vec<bool>;
 }
 
 impl<T1: num_traits::PrimInt + num_traits::Unsigned + num_traits::FromPrimitive> ToOneHot<T1> for T1 {
@@ -220,8 +220,8 @@ impl<T1: num_traits::PrimInt + num_traits::Unsigned + num_traits::FromPrimitive>
     /// let one_hot = 2u8.convert(4u8);
     /// assert_eq!(one_hot, vec![false, false, true, false]);
     /// ```
-    fn convert(self, num_classes: T1) -> Vec<bool> {
-        if self >= num_classes {
+    fn convert(&self, num_classes: T1) -> Vec<bool> {
+        if *self >= num_classes {
             panic!("Tried to convert {} to one-hot vector for {} classes.", self.to_usize().unwrap(),
                    num_classes.to_usize().unwrap());
         }
@@ -244,10 +244,10 @@ impl<T1: num_traits::PrimInt + num_traits::Unsigned + num_traits::FromPrimitive>
     /// let one_hot = vec![3u128, 0u128].convert(5u128);
     /// assert_eq!(one_hot, vec![true, false, false, true, false]);
     /// ```
-    fn convert(self, num_classes: T1) -> Vec<bool> {
+    fn convert(&self, num_classes: T1) -> Vec<bool> {
         let mut one_hot = vec![false; num_classes.to_usize().unwrap()];
         for category in self {
-            if category >= num_classes {
+            if *category >= num_classes {
                 panic!("Tried to convert {} to one-hot vector for {} classes.", category.to_usize().unwrap(),
                        num_classes.to_usize().unwrap());
             }
