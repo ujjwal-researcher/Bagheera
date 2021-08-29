@@ -8,7 +8,7 @@ mod tests {
     use rand;
     use rand::Rng;
 
-    use crate::classification::ClassificationOutput;
+    use crate::classification::{ClassificationDataset, ClassificationOutput};
 
     #[test]
     fn it_works() {
@@ -144,5 +144,53 @@ mod tests {
             topk_ind,
             vec![999usize, 998usize, 997usize, 996usize, 995usize]
         );
+    }
+
+    #[test]
+    fn classification_dataset_single_label_empty_u8() {
+        let cls_db = ClassificationDataset::new(33u8, false);
+        assert_eq!(cls_db.is_multilabel(), false);
+        assert_eq!(cls_db.num_classes(), 33u8);
+        assert_eq!(cls_db.is_empty(), true);
+    }
+
+    #[test]
+    fn classification_dataset_single_label_empty_u32() {
+        let cls_db = ClassificationDataset::new(10u32, false);
+        assert_eq!(cls_db.is_multilabel(), false);
+        assert_eq!(cls_db.num_classes(), 10u32);
+        assert_eq!(cls_db.is_empty(), true);
+    }
+
+    #[test]
+    fn classification_dataset_multi_label_empty_u8() {
+        let cls_db = ClassificationDataset::new(3u8, true);
+        assert_eq!(cls_db.is_multilabel(), true);
+        assert_eq!(cls_db.num_classes(), 3u8);
+        assert_eq!(cls_db.is_empty(), true);
+    }
+
+    #[test]
+    fn classification_dataset_add_images() {
+        let mut cls_db = ClassificationDataset::new(100u8, false);
+        let num_images = rand::thread_rng().gen::<usize>();
+        for _ in 0..100 {
+            cls_db
+                .add(
+                    (0..50)
+                        .map(|_| rand::random::<u8>() as char)
+                        .collect::<String>()
+                        .as_str(),
+                    &vec![rand::thread_rng().gen_range::<u8, _>(0..100)],
+                )
+                .unwrap();
+        }
+        assert_eq!(cls_db.num_images(), 100usize);
+    }
+
+    #[test]
+    fn classification_dataset_num_classes() {
+        let cls_db = ClassificationDataset::<u128>::new(2000u128, true);
+        assert_eq!(cls_db.num_classes(), 2000u128);
     }
 }
