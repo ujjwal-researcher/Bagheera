@@ -614,6 +614,17 @@ impl<
         T3: EvaluationOptions,
     > ClassificationJudge<'a, T1, T2, T3>
 {
+    /// Creates a new empty instance of [`Self`].
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use bagheera::classification;
+    ///
+    /// let mut cls_db = classification::ClassificationDataset::<u8>::new(10u8, false);
+    /// cls_db.add("Hello", &vec![4u8]);
+    /// assert_eq!(cls_db.num_classes(), 10u8);
+    /// ```
     pub fn new(
         classifier_output: &'a ClassificationOutput<T1, T2>,
         dataset: &'a ClassificationDataset<T1>,
@@ -665,4 +676,23 @@ pub struct ClassificationResult<
     per_class_recall: Option<Vec<T2>>,
     per_class_ap: Option<Vec<T2>>,
     per_class_f1: Option<Vec<T2>>,
+}
+
+pub trait ClassificationEvaluation<
+    T2: num_traits::Float + fast_float::FastFloat + num_traits::FromPrimitive,
+>
+{
+    fn evaluate(&self) -> ClassificationResult<T2>;
+}
+
+impl<
+        'a,
+        T1: num_traits::PrimInt + num_traits::Unsigned + num_traits::FromPrimitive,
+        T2: num_traits::Float + fast_float::FastFloat + num_traits::FromPrimitive,
+        T3: EvaluationOptions,
+    > ClassificationEvaluation<T2> for ClassificationJudge<'a, T1, T2, T3>
+{
+    fn evaluate(&self) -> ClassificationResult<T2> {
+        todo!()
+    }
 }
