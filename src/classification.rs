@@ -160,6 +160,7 @@ impl<
     ///  let cls_out = ClassificationOutput::<usize, f32>::new(1000usize);
     ///  assert_eq!(cls_out.num_classes(), 1000usize);
     /// ```
+    #[inline(always)]
     pub fn num_classes(&self) -> T1 {
         self.num_classes
     }
@@ -189,6 +190,7 @@ impl<
     /// }
     /// assert_eq!(cls_out.num_images(), 5usize);
     /// ```
+    #[inline(always)]
     pub fn num_images(&self) -> usize {
         self.data.len()
     }
@@ -207,11 +209,12 @@ impl<
     /// }
     /// assert_eq!(cls_out.image_is_present("australia.jpg"), false);
     /// ```
+    #[inline(always)]
     pub fn image_is_present(&self, image_name: &str) -> bool {
         self.data.contains_key(image_name)
     }
 
-    /// Returns a sorted vector of image names in a [`Self`] instance.
+    /// Returns a vector of image names in a [`Self`] instance.
     ///
     /// The returned vector contains `&str` slices to the `String` stored in the instance.
     ///
@@ -253,6 +256,7 @@ impl<
     /// assert_eq!(cls_out.num_classes(), 20u8);
     /// assert_eq!(cls_out.is_empty(), true);
     /// ```
+    #[inline(always)]
     pub fn is_empty(&self) -> bool {
         self.data.is_empty()
     }
@@ -287,6 +291,7 @@ impl<
     ///     approx_eq!(f32, *lhs, *rhs, ulps=5);
     /// }
     /// ```
+    #[inline(always)]
     pub fn confidence_for_image(&self, imagename: &str) -> Result<&Vec<T2>, io::Error> {
         if !self.image_is_present(imagename) {
             return Err(errors::image_not_present_error(imagename));
@@ -424,18 +429,22 @@ impl<T1: num_traits::PrimInt + num_traits::Unsigned + num_traits::FromPrimitive>
     ///  let cls_db = ClassificationDataset::<u128>::new(2000u128, true);
     ///  assert_eq!(cls_db.num_classes(), 2000u128);
     /// ```
+    #[inline(always)]
     pub fn num_classes(&self) -> T1 {
         self.num_classes
     }
 
+    #[inline(always)]
     pub fn num_images(&self) -> usize {
         self.data.len()
     }
 
+    #[inline(always)]
     pub fn image_is_present(&self, imagename: &str) -> bool {
         self.data.contains_key(imagename)
     }
 
+    #[inline(always)]
     pub fn list_images(&self) -> Vec<&str> {
         self.data.iter().map(|it| it.0.as_str()).collect()
     }
@@ -458,6 +467,7 @@ impl<T1: num_traits::PrimInt + num_traits::Unsigned + num_traits::FromPrimitive>
     /// let cls_db = ClassificationDataset::new(1000u16, false);
     /// assert_eq!(cls_db.is_multilabel(), false);
     /// ```
+    #[inline(always)]
     pub fn is_multilabel(&self) -> bool {
         self.is_multilabel
     }
@@ -483,12 +493,18 @@ impl<T1: num_traits::PrimInt + num_traits::Unsigned + num_traits::FromPrimitive>
     /// cls_db.add("hello.jpg", &vec![1u16, 3u16]);
     /// assert_eq!(cls_db.get_gt("hello.jpg").unwrap(), &vec![false, true, false, true, false]);
     /// ```
+    #[inline]
     pub fn get_gt(&self, imagename: &str) -> Result<&Vec<bool>, io::Error> {
         if !self.image_is_present(imagename) {
             Err(errors::image_not_present_error(imagename))
         } else {
             Ok(&self.data[imagename])
         }
+    }
+
+    #[inline(always)]
+    pub fn is_empty(&self) -> bool {
+        self.data.is_empty()
     }
 }
 
@@ -614,6 +630,7 @@ impl<
         }
     }
 
+    #[inline(always)]
     fn get_difference(&self, imagename: &str) -> Vec<DIFFERENCE>
     where
         T2: Copy,
