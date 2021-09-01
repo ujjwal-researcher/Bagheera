@@ -6,8 +6,11 @@ use std::io::{Error, ErrorKind};
 pub struct ClassificationDataset<
     T1: num_traits::PrimInt + num_traits::Unsigned + num_traits::FromPrimitive,
 > {
+    /// Number of object classes
     num_classes: T1,
+    /// Hashmap holding the GT class category IDs.
     data: HashMap<String, Vec<T1>>,
+    /// If true, the dataset allows for multiple GT labels for each image.
     is_multilabel: bool,
 }
 
