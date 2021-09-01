@@ -8,7 +8,7 @@ use std::io;
 /// # Examples
 ///
 /// ```rust
-/// use bagheera::classification::ClassificationOutput;
+/// use bagheera::classification_old::ClassificationOutput;
 /// use bagheera::errors::image_not_present_error;
 /// use std::io;
 /// let mut cls_out = ClassificationOutput::<usize,f64>::new(1000usize);

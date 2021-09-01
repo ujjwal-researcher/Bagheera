@@ -1,4 +1,5 @@
 pub mod classification;
+pub mod classification_old;
 pub mod errors;
 pub mod utils;
 
@@ -8,7 +9,7 @@ mod tests {
     use rand;
     use rand::Rng;
 
-    use crate::classification::{ClassificationDataset, ClassificationOutput};
+    use crate::classification_old::{ClassificationDataset, ClassificationOutput};
 
     #[test]
     fn it_works() {
