@@ -1,5 +1,6 @@
 use crate::errors;
 use std::collections::HashMap;
+use std::fmt::Display;
 use std::io::{Error, ErrorKind};
 
 /// Generic struct representing an image classification dataset.
@@ -228,3 +229,22 @@ impl<T1: num_traits::PrimInt + num_traits::Unsigned + num_traits::FromPrimitive>
         self.data.keys().map(|x| x.as_str()).collect::<Vec<&str>>()
     }
 }
+
+pub trait ClassificationJudge<
+    T1: num_traits::PrimInt + num_traits::Unsigned + num_traits::FromPrimitive,
+>
+{
+    #[inline(always)]
+    fn dataset(&self) -> &ClassificationDataset<T1>;
+}
+
+pub trait ClassificationEvaluationMetric {
+    #[inline(always)]
+    fn name(&self) -> &str;
+
+    fn evaluate(&self, imagename: &str) -> bool;
+
+    fn current_result(&self) -> &ClassificationEvaluationResult;
+}
+
+pub type ClassificationEvaluationResult = HashMap<String, Box<dyn Display>>;
