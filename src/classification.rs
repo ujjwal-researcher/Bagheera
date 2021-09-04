@@ -50,7 +50,7 @@ impl<T1: num_traits::PrimInt + num_traits::Unsigned + num_traits::FromPrimitive>
     /// cls_db.add("hello.jpg", &vec![1u16]);
     /// assert_eq!(cls_db.num_images(), 1usize);
     /// ```
-    pub fn add(&mut self, imagename: &str, category_labels: &Vec<T1>) -> Result<(), Error> {
+    pub fn add(&mut self, imagename: &str, category_labels: &[T1]) -> Result<(), Error> {
         if self.image_is_present(imagename) {
             return Err(Error::new(
                 ErrorKind::InvalidInput,
@@ -92,7 +92,7 @@ impl<T1: num_traits::PrimInt + num_traits::Unsigned + num_traits::FromPrimitive>
     /// assert_eq!(cls_db.get_gt("hello.jpg").unwrap(), &vec![1u16, 3u16]);
     /// ```
     #[inline]
-    pub fn get_gt(&self, imagename: &str) -> Result<&Vec<T1>, Error> {
+    pub fn get_gt(&self, imagename: &str) -> Result<&[T1], Error> {
         if !self.image_is_present(imagename) {
             Err(errors::image_not_present_error(imagename))
         } else {
