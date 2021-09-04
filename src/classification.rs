@@ -230,21 +230,27 @@ impl<T1: num_traits::PrimInt + num_traits::Unsigned + num_traits::FromPrimitive>
     }
 }
 
+/// Generic trait representing an evaluation of image classification
 pub trait ClassificationJudge<
     T1: num_traits::PrimInt + num_traits::Unsigned + num_traits::FromPrimitive,
 >
 {
+    /// Returns a reference to the groundtruth dataset.
     #[inline(always)]
     fn dataset(&self) -> &ClassificationDataset<T1>;
 }
 
 pub trait ClassificationEvaluationMetric {
+    /// Name of the metric.
     #[inline(always)]
     fn name(&self) -> &str;
 
-    fn evaluate(&self, imagename: &str) -> bool;
+    fn add(&mut self, imagename: &str) -> bool;
 
     fn current_result(&self) -> &ClassificationEvaluationResult;
+
+    #[inline(always)]
+    fn processed_images(&self) -> [&str];
 }
 
 pub type ClassificationEvaluationResult = HashMap<String, Box<dyn Display>>;
