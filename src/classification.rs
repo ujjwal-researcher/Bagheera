@@ -240,17 +240,23 @@ pub trait ClassificationJudge<
     fn dataset(&self) -> &ClassificationDataset<T1>;
 }
 
-pub trait ClassificationEvaluationMetric {
-    /// Name of the metric.
-    #[inline(always)]
-    fn name(&self) -> &str;
 
-    fn add(&mut self, imagename: &str) -> bool;
+mod metrics {
+    use std::collections::HashMap;
+    use std::fmt::Display;
 
-    fn current_result(&self) -> &ClassificationEvaluationResult;
+    pub trait ClassificationEvaluationMetric {
+        /// Name of the metric.
+        #[inline(always)]
+        fn name(&self) -> &str;
 
-    #[inline(always)]
-    fn processed_images(&self) -> [&str];
+        fn add(&mut self, imagename: &str) -> bool;
+
+        fn current_result(&self) -> &ClassificationEvaluationResult;
+
+        #[inline(always)]
+        fn processed_images(&self) -> [&str];
+    }
+
+    pub type ClassificationEvaluationResult = HashMap<String, Box<dyn Display>>;
 }
-
-pub type ClassificationEvaluationResult = HashMap<String, Box<dyn Display>>;
