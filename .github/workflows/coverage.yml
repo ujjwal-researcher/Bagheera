@@ -1,0 +1,9 @@
+name: Code Coverage
+on: push
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@classification_experimental
+        name: Setup Rust
+
